@@ -1,0 +1,42 @@
+#cloud-config
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+
+write_files:
+  - path: /root/docker-compose.yml
+    content: |
+        version: '3.9'
+
+        services:
+          gitea:
+              image: gitea/gitea:latest
+              restart: always
+              ports:
+                - "3000:3000"
+                - "2222:22"
+              environment:
+                - DB_TYPE=mysql
+                - DB_HOST=10.20.0.2:3306
+                - DB_NAME=gitea
+                - DB_USER=gitea
+                - DB_PASSWD=gitea
+              volumes:
+                - /mnt/gitea_data:/data
+
+runcmd:
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - apt-get update -y
+  - apt-get install -y docker-ce docker-ce-cli containerd.io
+  - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+  - systemctl start docker
+  - systemctl enable docker
+  - mkdir -p /mnt/gitea_data
+  - mount /dev/disk/by-id/scsi-0GITEAVOLUME /mnt/gitea_data
+  - cd /root/ && docker-compose up -d
