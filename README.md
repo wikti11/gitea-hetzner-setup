@@ -25,5 +25,5 @@ Set the following variables in deploy.py file before running the script:
 1. Clone the repository:
 
    ```bash
-   git clone git@your-repo.git
-   cd your-repo
+   git clone git@gitea-hetzner-setup.git
+   cd gitea-hetzner-setup
